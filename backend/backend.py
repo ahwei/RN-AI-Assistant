@@ -34,12 +34,15 @@ import uvicorn
 # Database setup
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
+)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 Base = declarative_base()
 
 
 ### SQLAlchemy Models. Feel free to move these to another Python file.
+
 
 class User(Base):
     __tablename__ = "user_"
@@ -133,7 +136,9 @@ def create_chat(user_id: int, db: SessionLocal = Depends(get_db)):
 
 
 @app.post("/chats/{chat_id}/messages/")
-def send_message(chat_id: int, user_id: int, content: str, db: SessionLocal = Depends(get_db)):
+def send_message(
+    chat_id: int, user_id: int, content: str, db: SessionLocal = Depends(get_db)
+):
     message = Message(chat_id=chat_id, user_id=user_id, sender="user", content=content)
     db.add(message)
     db.commit()
@@ -144,7 +149,12 @@ def send_message(chat_id: int, user_id: int, content: str, db: SessionLocal = De
 
 @app.get("/chats/{chat_id}/messages/", response_model=list)
 def get_messages(chat_id: int, db: SessionLocal = Depends(get_db)):
-    messages = db.query(Message).filter(Message.chat_id == chat_id).order_by(Message.timestamp).all()
+    messages = (
+        db.query(Message)
+        .filter(Message.chat_id == chat_id)
+        .order_by(Message.timestamp)
+        .all()
+    )
     return [
         {
             "message_id": msg.message_id,
@@ -157,7 +167,9 @@ def get_messages(chat_id: int, db: SessionLocal = Depends(get_db)):
 
 
 @app.post("/chats/{chat_id}/experts/{expert_id}/respond")
-async def expert_respond(chat_id: int, expert_id: int, db: SessionLocal = Depends(get_db)):
+async def expert_respond(
+    chat_id: int, expert_id: int, db: SessionLocal = Depends(get_db)
+):
     # This is a stub implementation simulating the LLM response for one user message
     # You may want to restructure this api to have the user message sent with this
     # request, and have multiple experts respond to the same message, all
@@ -182,10 +194,10 @@ async def expert_respond(chat_id: int, expert_id: int, db: SessionLocal = Depend
             partial_response_chunk = enc.decode([token])
             await asyncio.sleep(0.01)
             assert isinstance(partial_response_chunk, str)
-            print(partial_response_chunk, end='', flush=True)  # Print to terminal
+            print(partial_response_chunk, end="", flush=True)  # Print to terminal
             yield partial_response_chunk
         print()  # Add newline at end
-        
+
     # TODO: Save the response to the database
     return StreamingResponse(fake_llm_response(), media_type="text/event-stream")
 
@@ -195,22 +207,15 @@ async def expert_respond(chat_id: int, expert_id: int, db: SessionLocal = Depend
 def startup_event():
     db = SessionLocal()
     if db.query(Expert).count() == 0:
-        expert1 = Expert(
-            name="Lex Fridman",
-            description=""
-        )
-        expert2 = Expert(
-            name="Elon Musk",
-            description=""
-        )
-        expert3 = Expert(
-            name="Ray Dalio",
-            description=""
-        )
+        expert1 = Expert(name="Lex Fridman", description="")
+        expert2 = Expert(name="Elon Musk", description="")
+        expert3 = Expert(name="Ray Dalio", description="")
         db.add_all([expert1, expert2, expert3])
         db.commit()
     else:
-        print("Experts already exist. Skipping initial seeding of database with experts.")
+        print(
+            "Experts already exist. Skipping initial seeding of database with experts."
+        )
     db.close()
 
 

@@ -2,3 +2,6 @@ fastapi
 sqlalchemy
 uvicorn
 openai
+tiktoken
+pydantic
+pydantic-settings
