@@ -68,8 +68,19 @@ def get_messages(chat_id: int, db: Session = Depends(get_db)):
 async def expert_respond(chat_id: int, expert_id: int, db: Session = Depends(get_db)):
     async def fake_llm_response():
         await asyncio.sleep(1.0)
-        example_full_response = "Hello, I'm Lex Fridman. I'm a research scientist at MIT..."  # 省略原有的長文
-        enc = tiktoken.encoding_for_model("gpt-4o")
+        example_full_response = (
+            "Hello, I'm Lex Fridman. I'm a research scientist at MIT, focusing on human-centered artificial intelligence, "
+            "deep learning, and autonomous vehicles. I'm also known for hosting the Lex Fridman Podcast where I have in-depth "
+            "conversations with scientists, engineers, artists, and leaders across many fields. My academic work explores the "
+            "intersection of AI and human intelligence, particularly in areas like human-robot interaction and machine learning. "
+            "I've had the privilege of interviewing many influential figures including Elon Musk, Mark Zuckerberg, and Ray Dalio. "
+            "My approach combines rigorous technical understanding with philosophical inquiry about consciousness, intelligence, "
+            "and the future of humanity. I'm deeply interested in questions about AGI, consciousness, and how technology will "
+            "shape our future. I also practice jiu-jitsu and believe in the importance of both physical and mental discipline. "
+            "I aim to bridge the gap between technical AI concepts and their broader implications for society through my research, "
+            "teaching, and public communication."
+        )
+        enc = tiktoken.encoding_for_model("gpt-4o-mini")
         tokenized_response = enc.encode(example_full_response)
         for token in tokenized_response:
             partial_response_chunk = enc.decode([token])
