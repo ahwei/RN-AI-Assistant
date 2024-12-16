@@ -1,6 +1,15 @@
 import { Avatar, Button, Icon, Input } from '@rneui/themed';
 import React, { useRef, useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  Keyboard,
+  KeyboardAvoidingView,
+  KeyboardEventListener,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import Markdown from 'react-native-markdown-display';
 
 const ChatRoom = () => {
@@ -32,6 +41,26 @@ const ChatRoom = () => {
     },
   ]);
 
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  const onKeyboardDidShow: KeyboardEventListener = e => {
+    setKeyboardHeight(e.endCoordinates.height);
+  };
+
+  const onKeyboardDidHide: KeyboardEventListener = () => {
+    setKeyboardHeight(0);
+  };
+
+  React.useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', onKeyboardDidShow);
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', onKeyboardDidHide);
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
+
   const sendMessage = () => {
     if (message.trim()) {
       setMessages([
@@ -51,7 +80,7 @@ const ChatRoom = () => {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+      keyboardVerticalOffset={keyboardHeight}
       style={styles.container}
     >
       <ScrollView
