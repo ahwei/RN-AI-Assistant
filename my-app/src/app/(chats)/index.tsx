@@ -9,7 +9,7 @@ const ChatRoom = () => {
   const [messages, setMessages] = useState([
     {
       id: 1,
-      user: 'ChatGPT',
+      user: 'AI BOT',
       text: 'Hello! I am ChatGPT, how can I assist you today?',
 
       timestamp: new Date().toLocaleTimeString(),
@@ -24,7 +24,7 @@ const ChatRoom = () => {
     },
     {
       id: 3,
-      user: 'ChatGPT',
+      user: 'AI BOT',
       text: 'The React lifecycle consists of three main phases:\n\n1. **Mounting**\n- constructor()\n- render()\n- componentDidMount()\n\n2. **Updating**\n- shouldComponentUpdate()\n- render()\n- componentDidUpdate()\n\n3. **Unmounting**\n- componentWillUnmount()',
 
       timestamp: new Date().toLocaleTimeString(),
@@ -69,11 +69,10 @@ const ChatRoom = () => {
               <Avatar rounded size="small" source={require('@/assets/images/ai-icon.png')} />
             )}
             <View style={[styles.messageBubble, msg.isMe ? styles.myBubble : styles.otherBubble]}>
-              <Text style={[styles.messageUser, msg.isMe && styles.myMessageUser]}>{msg.user}</Text>
+              {!msg.isMe && <Text style={[styles.messageUser]}>{msg.user}</Text>}
+
               {msg.isMe ? (
-                <Text style={[styles.messageText, msg.isMe && styles.myMessageText]}>
-                  {msg.text}
-                </Text>
+                <Text style={[styles.messageText]}>{msg.text}</Text>
               ) : (
                 <Markdown
                   style={{
@@ -88,9 +87,6 @@ const ChatRoom = () => {
                   {msg.text}
                 </Markdown>
               )}
-              <Text style={[styles.messageTime, msg.isMe && styles.myMessageTime]}>
-                {msg.timestamp}
-              </Text>
             </View>
           </View>
         ))}
@@ -144,7 +140,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     alignItems: 'center',
     backgroundColor: '#f0f0f0',
-    borderRadius: 20,
+    borderRadius: 45,
     flexDirection: 'row',
     padding: 10,
     width: '90%',
@@ -193,12 +189,6 @@ const styles = StyleSheet.create({
   messageText: {
     fontSize: 16,
   },
-  messageTime: {
-    alignSelf: 'flex-end',
-    color: '#666',
-    fontSize: 10,
-    marginTop: 2,
-  },
   messageUser: {
     color: '#666',
     fontSize: 12,
@@ -208,25 +198,18 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   myBubble: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#E8E8E8',
     marginLeft: 'auto',
+    width: '100%',
   },
   myMessage: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
   },
-  myMessageText: {
-    color: '#FFFFFF',
-  },
-  myMessageTime: {
-    color: '#FFFFFF',
-  },
-  myMessageUser: {
-    color: '#FFFFFF',
-  },
   otherBubble: {
-    backgroundColor: '#E8E8E8',
+    backgroundColor: 'transparent',
     marginRight: 'auto',
+    width: '100%',
   },
   otherMessage: {
     flexDirection: 'row',
