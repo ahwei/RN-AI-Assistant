@@ -1,4 +1,4 @@
-import { Avatar, Button, Input } from '@rneui/themed';
+import { Avatar, Button, Icon, Input } from '@rneui/themed';
 import React, { useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Markdown from 'react-native-markdown-display';
@@ -96,14 +96,23 @@ const ChatRoom = () => {
         ))}
       </ScrollView>
 
-      <View style={styles.inputContainer}>
-        <Input
-          placeholder="Type a message..."
-          value={message}
-          onChangeText={setMessage}
-          containerStyle={styles.input}
-        />
-        <Button title="Send" onPress={sendMessage} containerStyle={styles.button} />
+      <View style={styles.inputWrapper}>
+        <View style={styles.inputContainer}>
+          <Input
+            placeholder="Please input some text..."
+            value={message}
+            onChangeText={setMessage}
+            containerStyle={styles.input}
+            inputContainerStyle={styles.inputInner}
+            inputStyle={styles.inputText}
+          />
+          <Button
+            icon={<Icon name="send" type="material" color="#fff" size={24} />}
+            onPress={sendMessage}
+            containerStyle={styles.button}
+            buttonStyle={styles.buttonInner}
+          />
+        </View>
       </View>
     </KeyboardAvoidingView>
   );
@@ -111,26 +120,50 @@ const ChatRoom = () => {
 
 const styles = StyleSheet.create({
   button: {
-    justifyContent: 'center',
-    width: 70,
+    height: 45,
+    width: 45,
+  },
+  buttonInner: {
+    backgroundColor: '#007AFF',
+    borderRadius: 22.5,
+    height: 45,
+    padding: 0,
+    width: 45,
   },
   container: {
     backgroundColor: '#fff',
     flex: 1,
   },
   input: {
+    backgroundColor: 'transparent',
     flex: 1,
+    height: 45,
     marginRight: 10,
+    paddingHorizontal: 5,
   },
   inputContainer: {
-    borderTopColor: '#eee',
-    borderTopWidth: 1,
+    alignItems: 'center',
+    backgroundColor: '#f0f0f0',
+    borderRadius: 20,
     flexDirection: 'row',
     padding: 10,
+    width: '90%',
+  },
+  inputInner: {
+    backgroundColor: 'transparent',
+    borderBottomWidth: 0,
+  },
+  inputText: {
+    fontSize: 16,
+  },
+  inputWrapper: {
+    alignItems: 'center',
+    paddingBottom: 25,
+    width: '100%',
   },
   markdownCode: {
     backgroundColor: '#f0f0f0',
-    borderRadius: 4,
+    borderRadius: 8,
     fontFamily: 'monospace',
     padding: 8,
   },
