@@ -1,37 +1,54 @@
+import AIStreamingBubble from '@/components/chat/AIStreamingBubble';
 import ChatInput from '@/components/chat/ChatInput';
 import ExpertSelector from '@/components/chat/ExpertSelector';
 import MessageBubble from '@/components/chat/MessageBubble';
+import { useSendMessage } from '@/hooks/useChat';
 import { defaultExperts } from '@/types/expert';
 import React, { useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
 
+interface Message {
+  id: number;
+  text: string;
+  timestamp: string;
+  isMe: boolean;
+  type: 'normal' | 'streaming';
+  expertId?: number;
+  user?: string;
+}
+
 const ChatRoom = () => {
   const [message, setMessage] = useState('');
   const scrollViewRef = useRef<ScrollView | null>(null);
-  const [messages, setMessages] = useState([
+  const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
-      user: 'AI BOT',
       text: 'Hello! I am ChatGPT, how can I assist you today?',
       timestamp: new Date().toLocaleTimeString(),
       isMe: false,
+      type: 'normal',
+      user: 'AI',
     },
     {
       id: 2,
-      user: 'Me',
       text: 'Can you explain the React lifecycle?',
       timestamp: new Date().toLocaleTimeString(),
       isMe: true,
+      type: 'normal',
+      user: 'Ahwei',
     },
     {
       id: 3,
-      user: 'AI BOT',
       text: 'The React lifecycle consists of three main phases:\n\n1. **Mounting**\n- constructor()\n- render()\n- componentDidMount()\n\n2. **Updating**\n- shouldComponentUpdate()\n- render()\n- componentDidUpdate()\n\n3. **Unmounting**\n- componentWillUnmount()',
       timestamp: new Date().toLocaleTimeString(),
       isMe: false,
+      type: 'normal',
+      user: 'AI',
     },
   ]);
   const [selectedExperts, setSelectedExperts] = useState<number[]>([]);
+
+  const { mutate: sendMessage } = useSendMessage();
 
   const handleExpertSelect = (expertId: number) => {
     setSelectedExperts(prev => {
@@ -42,19 +59,40 @@ const ChatRoom = () => {
     });
   };
 
-  const sendMessage = () => {
+  const handleSendMessage = () => {
     if (message.trim()) {
-      setMessages([
-        ...messages,
-        {
-          id: messages.length + 1,
-          user: 'Me',
-          text: message,
-          timestamp: new Date().toLocaleTimeString(),
-          isMe: true,
-        },
-      ]);
+      const newMessage: Message = {
+        id: messages.length + 1,
+        text: message,
+        timestamp: new Date().toLocaleTimeString(),
+        isMe: true,
+        type: 'normal',
+      };
+
+      setMessages(prev => [...prev, newMessage]);
+
+      sendMessage({
+        chatId: 1,
+        userId: 1,
+        content: message,
+      });
+
       setMessage('');
+
+      // 如果有選擇專家，顯示 AI 回應
+      if (selectedExperts.length > 0) {
+        selectedExperts.forEach(expertId => {
+          const aiMessage: Message = {
+            id: messages.length + 2,
+            text: '',
+            timestamp: new Date().toLocaleTimeString(),
+            isMe: false,
+            type: 'streaming',
+            expertId,
+          };
+          setMessages(prev => [...prev, aiMessage]);
+        });
+      }
     }
   };
 
@@ -76,12 +114,16 @@ const ChatRoom = () => {
         contentContainerStyle={styles.scrollContent}
         onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
       >
-        {messages.map(msg => (
-          <MessageBubble key={msg.id} {...msg} />
-        ))}
+        {messages.map(msg =>
+          msg.type === 'streaming' && msg.expertId ? (
+            <AIStreamingBubble key={msg.id} chatId={1} expertId={msg.expertId} />
+          ) : (
+            <MessageBubble key={msg.id} {...msg} />
+          )
+        )}
       </ScrollView>
 
-      <ChatInput message={message} onChangeText={setMessage} onSend={sendMessage} />
+      <ChatInput message={message} onChangeText={setMessage} onSend={handleSendMessage} />
     </KeyboardAvoidingView>
   );
 };
