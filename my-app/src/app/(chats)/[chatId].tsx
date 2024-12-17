@@ -4,11 +4,11 @@ import ExpertSelector from '@/components/chat/ExpertSelector';
 import MessageBubble from '@/components/chat/MessageBubble';
 import { useChatList } from '@/contexts/ChatContext';
 import { useAddMessage, useGetMessages } from '@/hooks/useChat'; // 移除 useSendMessage
+import { ChatIdEnum } from '@/types/chat';
 import { defaultExperts } from '@/types/expert';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text } from 'react-native';
-
 interface Message {
   id: number;
   text: string;
@@ -21,7 +21,7 @@ interface Message {
 
 const ChatRoom = () => {
   const { chatId } = useLocalSearchParams();
-  console.log('chatId', chatId);
+
   const { createNewChatRoom, isLoading: isLoadingChatList } = useChatList();
   const router = useRouter();
 
@@ -67,7 +67,7 @@ const ChatRoom = () => {
   const handleSendMessage = async () => {
     if (message.trim()) {
       setMessage('');
-      if (String(chatId) === 'new') {
+      if (chatId === ChatIdEnum.NEW_CHAT) {
         const newChatId = await createNewChatRoom();
         await addMessageMutate({ content: message, chartId: newChatId });
         router.setParams({ chatId: newChatId });

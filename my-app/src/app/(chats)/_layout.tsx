@@ -1,10 +1,10 @@
 import { useChatList } from '@/contexts/ChatContext';
+import { ChatIdEnum } from '@/types/chat';
 import { DrawerContentComponentProps, DrawerContentScrollView } from '@react-navigation/drawer';
 import { Drawer } from 'expo-router/drawer';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-
 const CustomDrawerContent = (props: DrawerContentComponentProps) => {
   const { chatRooms } = useChatList();
 
@@ -56,11 +56,10 @@ const Layout = () => {
       >
         <Drawer.Screen
           name="[chatId]"
-          initialParams={{ chatId: 'new' }}
           options={({ route }) => {
             const chatId = (route.params as { chatId?: string })?.chatId;
 
-            if (chatId === 'new') {
+            if (chatId === ChatIdEnum.NEW_CHAT) {
               return {
                 drawerLabel: 'Home',
                 title: 'AI Expert Bot',
