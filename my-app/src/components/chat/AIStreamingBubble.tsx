@@ -17,7 +17,9 @@ export const AIStreamingBubble = ({ chatId, expertId }: AIStreamingBubbleProps) 
     }
   }, [stream]);
 
-  return <MessageBubble user={'AI'} isMe={false} text={accumulatedText || '思考中...'} />;
+  return (
+    <MessageBubble title={`${expertId}`} isMe={false} text={accumulatedText || 'thinking...'} />
+  );
 };
 
 export default AIStreamingBubble;
