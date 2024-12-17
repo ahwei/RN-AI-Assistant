@@ -1,30 +1,48 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
+import { useEffect, useState } from 'react';
 
 const API_BASE_URL = 'http://localhost:8000';
 
 export const useExpertResponse = (chatId: number, expertId: number) => {
-  return useQuery({
-    queryKey: ['expertResponse', chatId, expertId],
-    queryFn: async () => {
-      const response = await axios.post(
-        `${API_BASE_URL}/chats/${chatId}/experts/${expertId}/respond`,
-        {},
-        {
+  const [response, setResponse] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    if (!chatId || !expertId) return;
+
+    const controller = new AbortController();
+
+    (async () => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        await axios({
+          method: 'POST',
+          url: `${API_BASE_URL}/chats/${chatId}/experts/${expertId}/respond`,
           responseType: 'stream',
-          onDownloadProgress: progressEvent => {
-            // 處理串流資料
-            const chunk = progressEvent.event.target.response;
-            if (chunk) {
-              return chunk;
-            }
+          signal: controller.signal,
+          onDownloadProgress: ({ event }) => {
+            const data = event.target.response;
+            data && setResponse(data);
           },
+        });
+      } catch (err) {
+        if (!axios.isCancel(err)) {
+          console.error('err', err);
+          setError(err as Error);
         }
-      );
-      return response.data;
-    },
-    enabled: !!chatId && !!expertId,
-  });
+      } finally {
+        setIsLoading(false);
+      }
+    })();
+
+    return () => controller.abort();
+  }, [chatId, expertId]);
+
+  return { data: response, isLoading, error };
 };
 
 export const useSendMessage = () => {

@@ -1,5 +1,5 @@
 import { useExpertResponse } from '@/hooks/useChat';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import MessageBubble from './MessageBubble';
 
 interface AIStreamingBubbleProps {
@@ -8,17 +8,24 @@ interface AIStreamingBubbleProps {
 }
 
 export const AIStreamingBubble = ({ chatId, expertId }: AIStreamingBubbleProps) => {
-  const [accumulatedText, setAccumulatedText] = useState('');
-  const { data: stream } = useExpertResponse(chatId, expertId);
+  const { data, isLoading, error } = useExpertResponse(chatId, expertId);
 
-  useEffect(() => {
-    if (stream) {
-      setAccumulatedText(prev => prev + stream);
-    }
-  }, [stream]);
+  if (error) {
+    return (
+      <MessageBubble
+        title={`${expertId}`}
+        isMe={false}
+        text="Error occurred while loading response"
+      />
+    );
+  }
 
   return (
-    <MessageBubble title={`${expertId}`} isMe={false} text={accumulatedText || 'thinking...'} />
+    <MessageBubble
+      title={`${expertId}`}
+      isMe={false}
+      text={isLoading && !data ? 'thinking...' : data}
+    />
   );
 };
 

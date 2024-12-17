@@ -44,8 +44,11 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   markdownHeading: {
+    fontSize: 18,
     fontWeight: 'bold',
+    lineHeight: 24,
     marginVertical: 8,
+    paddingVertical: 4,
   },
   markdownStrong: {
     fontWeight: 'bold',
@@ -58,8 +61,9 @@ const styles = StyleSheet.create({
   messageBubble: {
     borderRadius: 15,
     marginHorizontal: 10,
-    maxWidth: '70%',
-    padding: 10,
+    maxWidth: '80%',
+    minWidth: 200,
+    padding: 12,
   },
   messageContainer: {
     alignItems: 'flex-start',
