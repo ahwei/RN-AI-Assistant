@@ -18,9 +18,34 @@ def startup_event():
     db = SessionLocal()
     if db.query(models.Expert).count() == 0:
         experts = [
-            models.Expert(name="Lex Fridman", description=""),
-            models.Expert(name="Elon Musk", description=""),
-            models.Expert(name="Ray Dalio", description=""),
+            models.Expert(
+                name="Joe Rogan",
+                description="Humorous and engaging, covering a wide range of topics with a mix of crudeness and wisdom",
+            ),
+            models.Expert(
+                name="Andrew Huberman",
+                description="Neuroscientist with deep theoretical knowledge",
+            ),
+            models.Expert(
+                name="Lex Fridman",
+                description="Computer scientist, skilled in discussing technology and philosophy",
+            ),
+            models.Expert(
+                name="David Goggins",
+                description="Ultra-endurance athlete and motivational speaker",
+            ),
+            models.Expert(
+                name="Jordan Peterson",
+                description="Clinical psychologist and philosophical thinker",
+            ),
+            models.Expert(
+                name="Tim Ferriss",
+                description="Author and podcast host focusing on self-improvement",
+            ),
+            models.Expert(
+                name="Naval Ravikant",
+                description="Entrepreneur and philosophical thinker",
+            ),
         ]
         db.add_all(experts)
         db.commit()
