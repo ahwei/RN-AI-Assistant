@@ -3,7 +3,7 @@ import ChatInput from '@/components/chat/ChatInput';
 import ExpertSelector from '@/components/chat/ExpertSelector';
 import MessageBubble from '@/components/chat/MessageBubble';
 import { useChatList } from '@/contexts/ChatContext';
-import { useGetMessages, useSendMessage } from '@/hooks/useChat';
+import { useAddMessage, useGetMessages, useSendMessage } from '@/hooks/useChat';
 import { defaultExperts } from '@/types/expert';
 import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
@@ -33,6 +33,7 @@ const ChatRoom = ({ chatId }: ChatRoomProps) => {
   const [selectedExperts, setSelectedExperts] = useState<number[]>([]);
 
   const { data: messageHistory = [], isLoading } = useGetMessages(chatId);
+  const addMessage = useAddMessage();
   const [messages, setMessages] = useState<Message[]>([]);
 
   useEffect(() => {
@@ -76,9 +77,10 @@ const ChatRoom = ({ chatId }: ChatRoomProps) => {
   const handleSendMessage = async () => {
     if (message.trim()) {
       if (!chatId) {
-        const newRoomId = await createNewChatRoom();
-        console.log('newRoomId', newRoomId);
-        router.push(`/(chats)/${newRoomId}`);
+        const newChatId = await createNewChatRoom();
+
+        await addMessage.mutateAsync({ content: message, chartId: newChatId });
+        router.push(`/(chats)/${newChatId}`);
         return;
       }
 
