@@ -107,5 +107,11 @@ async def expert_respond(chat_id: int, expert_id: int, db: Session = Depends(get
 
 @router.get("/users/{user_id}/chats/", response_model=list)
 def get_user_chats(user_id: int, db: Session = Depends(get_db)):
-    chats = db.query(Chat).filter(Chat.user_id == user_id).all()
+    chats = (
+        db.query(Chat)
+        .filter(Chat.user_id == user_id)
+        .order_by(Chat.chat_id.desc())
+        .limit(10)
+        .all()
+    )
     return [{"chat_id": chat.chat_id, "user_id": chat.user_id} for chat in chats]
