@@ -2,8 +2,10 @@ import AIStreamingBubble from '@/components/chat/AIStreamingBubble';
 import ChatInput from '@/components/chat/ChatInput';
 import ExpertSelector from '@/components/chat/ExpertSelector';
 import MessageBubble from '@/components/chat/MessageBubble';
+import { useChatList } from '@/contexts/ChatContext';
 import { useGetMessages, useSendMessage } from '@/hooks/useChat';
 import { defaultExperts } from '@/types/expert';
+import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text } from 'react-native';
 
@@ -23,6 +25,9 @@ interface ChatRoomProps {
 }
 
 const ChatRoom = ({ chatId }: ChatRoomProps) => {
+  const { addChatRoom } = useChatList();
+  const router = useRouter();
+
   const [message, setMessage] = useState('');
   const scrollViewRef = useRef<ScrollView | null>(null);
   const [selectedExperts, setSelectedExperts] = useState<number[]>([]);
@@ -64,6 +69,12 @@ const ChatRoom = ({ chatId }: ChatRoomProps) => {
 
   const handleSendMessage = () => {
     if (message.trim()) {
+      if (!chatId) {
+        const newRoomId = addChatRoom(`Chat ${new Date().toLocaleTimeString()}`);
+        router.push(`/(chats)/${newRoomId}`);
+        return;
+      }
+
       const newMessage: Message = {
         id: messages.length + 1,
         text: message,
@@ -75,12 +86,10 @@ const ChatRoom = ({ chatId }: ChatRoomProps) => {
       setMessages(prev => [...prev, newMessage]);
 
       sendMessage({
-        chatId: 1,
+        chatId,
         userId: 1,
         content: message,
       });
-
-      setMessage('');
 
       if (selectedExperts.length > 0) {
         selectedExperts.forEach(expertId => {
