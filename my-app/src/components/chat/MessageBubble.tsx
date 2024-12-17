@@ -4,18 +4,17 @@ import { StyleSheet, Text, View } from 'react-native';
 import Markdown from 'react-native-markdown-display';
 
 interface MessageBubbleProps {
-  id: number;
-  user: string;
+  title?: string;
   text: string;
   isMe: boolean;
 }
 
-const MessageBubble = ({ user, text, isMe }: MessageBubbleProps) => {
+const MessageBubble = ({ title, text, isMe }: MessageBubbleProps) => {
   return (
     <View style={[styles.messageContainer, isMe ? styles.myMessage : styles.otherMessage]}>
       {!isMe && <Avatar rounded size="small" source={require('@/assets/images/ai-icon.png')} />}
       <View style={[styles.messageBubble, isMe ? styles.myBubble : styles.otherBubble]}>
-        {!isMe && <Text style={styles.messageUser}>{user}</Text>}
+        {!isMe && <Text style={styles.messageUser}>{title || 'AI Response:'}</Text>}
         {isMe ? (
           <Text style={styles.messageText}>{text}</Text>
         ) : (
@@ -45,8 +44,11 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   markdownHeading: {
+    fontSize: 18,
     fontWeight: 'bold',
+    lineHeight: 24,
     marginVertical: 8,
+    paddingVertical: 4,
   },
   markdownStrong: {
     fontWeight: 'bold',
@@ -59,8 +61,9 @@ const styles = StyleSheet.create({
   messageBubble: {
     borderRadius: 15,
     marginHorizontal: 10,
-    maxWidth: '70%',
-    padding: 10,
+    maxWidth: '80%',
+    minWidth: 200,
+    padding: 12,
   },
   messageContainer: {
     alignItems: 'flex-start',

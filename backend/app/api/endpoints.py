@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 import asyncio
-import tiktoken
+
 
 from ..database import get_db
 from ..models.models import User, Expert, Chat, Message
@@ -66,25 +66,41 @@ def get_messages(chat_id: int, db: Session = Depends(get_db)):
 
 @router.post("/chats/{chat_id}/experts/{expert_id}/respond")
 async def expert_respond(chat_id: int, expert_id: int, db: Session = Depends(get_db)):
+
+    expert = db.query(Expert).filter(Expert.expert_id == expert_id).first()
+    if not expert:
+        raise HTTPException(status_code=404, detail="Expert not found")
+
+    messages = (
+        db.query(Message)
+        .filter(Message.chat_id == chat_id)
+        .order_by(Message.timestamp)
+        .all()
+    )
+    if not messages:
+        raise HTTPException(status_code=404, detail="Chat history not found")
+
+    print(f"Expert: {expert.name}")
+    print(f"Chat history length: {len(messages)}")
+    print(f"Last message: {messages[-1].content}")
+
     async def fake_llm_response():
-        await asyncio.sleep(1.0)
-        example_full_response = (
-            "Hello, I'm Lex Fridman. I'm a research scientist at MIT, focusing on human-centered artificial intelligence, "
-            "deep learning, and autonomous vehicles. I'm also known for hosting the Lex Fridman Podcast where I have in-depth "
-            "conversations with scientists, engineers, artists, and leaders across many fields. My academic work explores the "
-            "intersection of AI and human intelligence, particularly in areas like human-robot interaction and machine learning. "
-            "I've had the privilege of interviewing many influential figures including Elon Musk, Mark Zuckerberg, and Ray Dalio. "
-            "My approach combines rigorous technical understanding with philosophical inquiry about consciousness, intelligence, "
-            "and the future of humanity. I'm deeply interested in questions about AGI, consciousness, and how technology will "
-            "shape our future. I also practice jiu-jitsu and believe in the importance of both physical and mental discipline. "
-            "I aim to bridge the gap between technical AI concepts and their broader implications for society through my research, "
-            "teaching, and public communication."
-        )
-        enc = tiktoken.encoding_for_model("gpt-4o-mini")
-        tokenized_response = enc.encode(example_full_response)
-        for token in tokenized_response:
-            partial_response_chunk = enc.decode([token])
-            await asyncio.sleep(0.01)
-            yield partial_response_chunk
+        # Markdown
+        example_responses = [
+            "# AI and Machine Learning Expert\n\n",
+            "## Introduction\nAs an AI researcher with extensive experience in machine learning, ",
+            "I specialize in developing and implementing advanced AI solutions. ",
+            "\n\n## Key Areas of Expertise\n- Deep Learning\n- Neural Networks\n- Natural Language Processing\n",
+            "## Recent Developments\nIn recent years, we've seen significant advances in:\n",
+            "1. Transformer architectures\n2. Self-supervised learning\n3. Multi-modal models\n\n",
+            "## Practical Applications\nThese technologies have revolutionized:\n- Computer Vision\n- Language Processing\n- Robotics\n\n",
+            "## Future Directions\nThe field is moving towards:\n",
+            "- More efficient training methods\n- Better interpretability\n- Reduced computational requirements\n\n",
+            "## Conclusion\nThe future of AI is incredibly promising, with new breakthroughs happening regularly.",
+        ]
+
+        for chunk in example_responses:
+            await asyncio.sleep(0.5)  # delay 0.5 s
+            yield chunk
 
     return StreamingResponse(fake_llm_response(), media_type="text/event-stream")
