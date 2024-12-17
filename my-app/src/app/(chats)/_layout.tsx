@@ -1,36 +1,33 @@
-import { createDrawerNavigator } from '@react-navigation/drawer';
-import ChatRoom from './index';
-
-const Drawer = createDrawerNavigator();
+import { Drawer } from 'expo-router/drawer';
+import { useState } from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const Layout = () => {
+  const [chatRooms] = useState([{ id: 1, label: 'Chat Room 1' }]);
+
   return (
-    <Drawer.Navigator initialRouteName="Chat Room">
-      <Drawer.Screen
-        name="Chat Room"
-        component={ChatRoom}
-        options={{
-          headerTitle: 'Chat Room',
-          drawerLabel: 'Main Chat Room',
-        }}
-      />
-      <Drawer.Screen
-        name="Chat Room 2"
-        component={ChatRoom}
-        options={{
-          headerTitle: 'Chat Room 2',
-          drawerLabel: 'Chat Room 2',
-        }}
-      />
-      <Drawer.Screen
-        name="Chat Room 3"
-        component={ChatRoom}
-        options={{
-          headerTitle: 'Chat Room 3',
-          drawerLabel: 'Chat Room 3',
-        }}
-      />
-    </Drawer.Navigator>
+    <GestureHandlerRootView>
+      <Drawer>
+        <Drawer.Screen
+          name="index"
+          options={{
+            drawerLabel: 'Add New Chat Room',
+            title: 'AI Expert Bot',
+          }}
+        />
+        {chatRooms.map(room => (
+          <Drawer.Screen
+            key={room.id}
+            name="[chatId]"
+            options={{
+              drawerLabel: room.label,
+              title: room.label,
+            }}
+            initialParams={{ chatId: room.id }}
+          />
+        ))}
+      </Drawer>
+    </GestureHandlerRootView>
   );
 };
 
