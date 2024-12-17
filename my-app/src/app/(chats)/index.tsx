@@ -1,8 +1,4 @@
-import ChatRoom from '@/components/chat/ChatRoom';
-import React from 'react';
-
-const IndexPage = () => {
-  return <ChatRoom />;
-};
-
-export default IndexPage;
+import { Redirect } from 'expo-router';
+export default function IndexPage() {
+  return <Redirect href={`/(chats)/new`} />;
+}

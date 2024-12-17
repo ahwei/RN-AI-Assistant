@@ -55,20 +55,23 @@ const Layout = () => {
         }}
       >
         <Drawer.Screen
-          name="index"
-          options={{
-            drawerLabel: 'Home',
-            title: 'AI Expert Bot',
-          }}
-        />
-        <Drawer.Screen
           name="[chatId]"
+          initialParams={{ chatId: 'new' }}
           options={({ route }) => {
-            const chatId = (route.params as { chatId: number })?.chatId;
-            const currentChat = chatRooms.find(room => room.chat_id === Number(chatId));
-            return {
-              title: 'Chat Room ' + currentChat?.chat_id,
-            };
+            const chatId = (route.params as { chatId?: string })?.chatId;
+
+            if (chatId === 'new') {
+              return {
+                drawerLabel: 'Home',
+                title: 'AI Expert Bot',
+              };
+            } else {
+              const currentChat = chatRooms.find(room => room.chat_id === Number(chatId));
+              return {
+                drawerLabel: `Chat Room ${currentChat?.chat_id}`,
+                title: `Chat Room ${currentChat?.chat_id}`,
+              };
+            }
           }}
         />
       </Drawer>
