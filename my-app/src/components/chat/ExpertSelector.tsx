@@ -1,7 +1,7 @@
 import { Expert } from '@/types/expert';
 import { Avatar } from '@rneui/themed';
 import React from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface ExpertSelectorProps {
   experts: Expert[];
@@ -30,7 +30,11 @@ const ExpertSelector: React.FC<ExpertSelectorProps> = ({
               selectedExperts.includes(expert.id) && styles.selectedExpert,
             ]}
           >
-            <TouchableOpacity onPress={() => onSelectExpert(expert.id)} style={styles.touchable}>
+            <TouchableOpacity
+              onPress={() => onSelectExpert(expert.id)}
+              onLongPress={() => Alert.alert('Expert', expert.name)}
+              style={styles.touchable}
+            >
               <Avatar size={50} rounded source={{ uri: expert.avatar }} />
             </TouchableOpacity>
           </View>
