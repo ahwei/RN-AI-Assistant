@@ -1,9 +1,9 @@
+import { useChatList } from '@/contexts/ChatContext';
 import { Drawer } from 'expo-router/drawer';
-import { useState } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const Layout = () => {
-  const [chatRooms] = useState([{ id: 1, label: 'Chat Room 1' }]);
+  const { chatRooms } = useChatList();
 
   return (
     <GestureHandlerRootView>
