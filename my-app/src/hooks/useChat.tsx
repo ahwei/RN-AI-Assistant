@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 
@@ -62,5 +62,17 @@ export const useSendMessage = () => {
       });
       return response.data;
     },
+  });
+};
+
+export const useGetMessages = (chatId?: number) => {
+  return useQuery({
+    queryKey: ['messages', chatId],
+    queryFn: async () => {
+      if (!chatId) return [];
+      const response = await axios.get(`${API_BASE_URL}/chats/${chatId}/messages/`);
+      return response.data;
+    },
+    enabled: !!chatId,
   });
 };

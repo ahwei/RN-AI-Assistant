@@ -81,7 +81,8 @@ const styles = StyleSheet.create({
   myBubble: {
     backgroundColor: '#E8E8E8',
     marginLeft: 'auto',
-    width: '100%',
+    maxWidth: '80%',
+    width: 'auto',
   },
   myMessage: {
     flexDirection: 'row',

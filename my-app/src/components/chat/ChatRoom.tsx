@@ -2,9 +2,9 @@ import AIStreamingBubble from '@/components/chat/AIStreamingBubble';
 import ChatInput from '@/components/chat/ChatInput';
 import ExpertSelector from '@/components/chat/ExpertSelector';
 import MessageBubble from '@/components/chat/MessageBubble';
-import { useSendMessage } from '@/hooks/useChat';
+import { useGetMessages, useSendMessage } from '@/hooks/useChat';
 import { defaultExperts } from '@/types/expert';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text } from 'react-native';
 
 interface Message {
@@ -12,7 +12,7 @@ interface Message {
   text: string;
   timestamp: string;
   isMe: boolean;
-  type: 'normal' | 'streaming';
+  type: 'user' | 'ai' | 'streaming';
   expertId?: number;
   user?: string;
 }
@@ -25,33 +25,31 @@ interface ChatRoomProps {
 const ChatRoom = ({ chatId }: ChatRoomProps) => {
   const [message, setMessage] = useState('');
   const scrollViewRef = useRef<ScrollView | null>(null);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: 1,
-      text: 'Hello! I am ChatGPT, how can I assist you today?',
-      timestamp: new Date().toLocaleTimeString(),
-      isMe: false,
-      type: 'normal',
-      user: 'AI',
-    },
-    {
-      id: 2,
-      text: 'Can you explain the React lifecycle?',
-      timestamp: new Date().toLocaleTimeString(),
-      isMe: true,
-      type: 'normal',
-      user: 'Ahwei',
-    },
-    {
-      id: 3,
-      text: 'The React lifecycle consists of three main phases:\n\n1. **Mounting**\n- constructor()\n- render()\n- componentDidMount()\n\n2. **Updating**\n- shouldComponentUpdate()\n- render()\n- componentDidUpdate()\n\n3. **Unmounting**\n- componentWillUnmount()',
-      timestamp: new Date().toLocaleTimeString(),
-      isMe: false,
-      type: 'normal',
-      user: 'AI',
-    },
-  ]);
   const [selectedExperts, setSelectedExperts] = useState<number[]>([]);
+
+  const { data: messageHistory = [], isLoading } = useGetMessages(chatId);
+  const [messages, setMessages] = useState<Message[]>([]);
+
+  useEffect(() => {
+    if (chatId && messageHistory && messageHistory.length > 0) {
+      const formattedMessages: Message[] = messageHistory.map(
+        (msg: {
+          message_id: string;
+          content: string;
+          timestamp: string | number | Date;
+          sender: string;
+        }) => ({
+          id: msg.message_id,
+          text: msg.content,
+          timestamp: new Date(msg.timestamp).toLocaleTimeString(),
+          isMe: msg.sender === 'user',
+          type: msg.sender === 'user' ? 'user' : 'ai',
+          user: msg.sender === 'user' ? 'You' : 'AI',
+        })
+      );
+      setMessages(formattedMessages);
+    }
+  }, [chatId, messageHistory]);
 
   const { mutate: sendMessage } = useSendMessage();
 
@@ -71,7 +69,7 @@ const ChatRoom = ({ chatId }: ChatRoomProps) => {
         text: message,
         timestamp: new Date().toLocaleTimeString(),
         isMe: true,
-        type: 'normal',
+        type: 'user',
       };
 
       setMessages(prev => [...prev, newMessage]);
@@ -106,7 +104,6 @@ const ChatRoom = ({ chatId }: ChatRoomProps) => {
       keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
       style={styles.container}
     >
-      <Text>chatId: {chatId}</Text>
       <ExpertSelector
         experts={defaultExperts}
         selectedExperts={selectedExperts}
@@ -118,12 +115,18 @@ const ChatRoom = ({ chatId }: ChatRoomProps) => {
         contentContainerStyle={styles.scrollContent}
         onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
       >
-        {messages.map(msg =>
-          msg.type === 'streaming' && msg.expertId ? (
-            <AIStreamingBubble key={msg.id} chatId={1} expertId={msg.expertId} />
-          ) : (
-            <MessageBubble key={msg.id} {...msg} />
+        {isLoading ? (
+          <Text>Loading messages...</Text>
+        ) : messages.length > 0 ? (
+          messages.map(msg =>
+            msg.type === 'streaming' && msg.expertId && chatId ? (
+              <AIStreamingBubble key={msg.id} chatId={chatId} expertId={msg.expertId} />
+            ) : (
+              <MessageBubble key={msg.id} {...msg} />
+            )
           )
+        ) : (
+          <Text>No messages yet</Text>
         )}
       </ScrollView>
       <ChatInput message={message} onChangeText={setMessage} onSend={handleSendMessage} />
