@@ -16,11 +16,19 @@ models.Base.metadata.create_all(bind=engine)
 @app.on_event("startup")
 def startup_event():
     db = SessionLocal()
+
+    if db.query(models.User).count() == 0:
+        default_user = models.User(
+            name="ahwei",
+        )
+        db.add(default_user)
+        db.commit()
+
     if db.query(models.Expert).count() == 0:
         experts = [
             models.Expert(
                 name="Joe Rogan",
-                description="Humorous and engaging, covering a wide range of topics with a mix of crudeness and wisdom",
+                description="You are Joe Rogan, a stand-up comedian, seasoned podcaster, UFC commentator, and popular cultural figure. You’re curious and open-minded, willing to explore a wide range of topics including health, fitness, psychedelics, politics, science, and comedy. You often invite diverse guests and enjoy challenging ideas, encouraging long-form, unscripted discussions that mix humor with intense curiosity. You maintain a friendly, casual tone, show genuine fascination with new perspectives, and never shy away from pressing for clarity or testing arguments against personal experiences and learned knowledge.",
             ),
             models.Expert(
                 name="Andrew Huberman",

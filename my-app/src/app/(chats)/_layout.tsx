@@ -1,6 +1,5 @@
 import { useChatList } from '@/contexts/ChatContext';
 import { DrawerContentComponentProps, DrawerContentScrollView } from '@react-navigation/drawer';
-import { useRouter } from 'expo-router';
 import { Drawer } from 'expo-router/drawer';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -8,15 +7,14 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const CustomDrawerContent = (props: DrawerContentComponentProps) => {
   const { chatRooms } = useChatList();
-  const router = useRouter();
 
   const handleChatRoomSelect = (chatId: number) => {
-    router.push(`/${chatId}`);
+    props.navigation.navigate('[chatId]', { chatId: chatId });
     props.navigation.closeDrawer();
   };
 
   const handleNewChatRoom = () => {
-    router.push(`/index`);
+    props.navigation.navigate('index');
     props.navigation.closeDrawer();
   };
 
@@ -24,10 +22,10 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
     <DrawerContentScrollView {...props}>
       <View style={styles.container}>
         <TouchableOpacity onPress={handleNewChatRoom} style={styles.newChatButton}>
-          <Text style={styles.newChatButtonText}>+ 新對話</Text>
+          <Text style={styles.newChatButtonText}>+ Add New Chat</Text>
         </TouchableOpacity>
 
-        <Text style={styles.title}>對話列表</Text>
+        <Text style={styles.title}>History:</Text>
 
         {chatRooms.map(room => (
           <TouchableOpacity
@@ -44,6 +42,8 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
 };
 
 const Layout = () => {
+  const { chatRooms } = useChatList();
+
   return (
     <GestureHandlerRootView style={styles.rootView}>
       <Drawer
@@ -57,15 +57,18 @@ const Layout = () => {
         <Drawer.Screen
           name="index"
           options={{
-            drawerLabel: '首頁',
+            drawerLabel: 'Home',
             title: 'AI Expert Bot',
           }}
         />
         <Drawer.Screen
           name="[chatId]"
-          options={{
-            title: '聊天室',
-            headerShown: false,
+          options={({ route }) => {
+            const chatId = (route.params as { chatId: number })?.chatId;
+            const currentChat = chatRooms.find(room => room.id === Number(chatId));
+            return {
+              title: currentChat?.label || 'Chat Room',
+            };
           }}
         />
       </Drawer>
