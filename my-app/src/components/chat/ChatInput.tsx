@@ -22,7 +22,7 @@ const ChatInput = ({ message, onChangeText, onSend, disabled }: ChatInputProps) 
           inputStyle={styles.inputText}
         />
         <Button
-          icon={<Icon name="send" type="material" color="#fff" size={24} />}
+          icon={<Icon name={disabled ? 'sync' : 'send'} type="material" color="#fff" size={24} />}
           onPress={onSend}
           containerStyle={styles.button}
           buttonStyle={styles.buttonInner}

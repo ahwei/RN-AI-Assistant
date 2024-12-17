@@ -45,26 +45,6 @@ export const useExpertResponse = (chatId: number, expertId: number) => {
   return { data: response, isLoading, error };
 };
 
-export const useSendMessage = () => {
-  return useMutation({
-    mutationFn: async ({
-      chatId,
-      userId,
-      content,
-    }: {
-      chatId: number;
-      userId: number;
-      content: string;
-    }) => {
-      const response = await axios.post(`${API_BASE_URL}/chats/${chatId}/messages/`, {
-        user_id: userId,
-        content,
-      });
-      return response.data;
-    },
-  });
-};
-
 export const useGetMessages = (chatId?: number) => {
   return useQuery({
     queryKey: ['messages', chatId],
@@ -87,15 +67,25 @@ export const useGetUserChats = (userId: number = 1) => {
   });
 };
 
+interface AddMessageParams {
+  content: string;
+  chartId: number;
+}
+
 export const useAddMessage = () => {
-  return useMutation({
-    mutationFn: async (params: { content: string; chartId: number }, userId: number = 1) => {
+  const mutation = useMutation<unknown, Error, AddMessageParams>({
+    mutationFn: async (params: AddMessageParams, userId: number = 1) => {
       const response = await axios.post(
         `${API_BASE_URL}/chats/${params.chartId}/messages/?user_id=${userId}&content=${params.content}`
       );
       return response.data;
     },
   });
+
+  return {
+    mutateAsync: mutation.mutateAsync,
+    isLoading: mutation.isPending,
+  };
 };
 
 export const useCreateChatRoom = () => {
