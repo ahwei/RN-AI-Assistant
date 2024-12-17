@@ -1,5 +1,7 @@
 import ChatInput from '@/components/chat/ChatInput';
+import ExpertSelector from '@/components/chat/ExpertSelector';
 import MessageBubble from '@/components/chat/MessageBubble';
+import { defaultExperts } from '@/types/expert';
 import React, { useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
 
@@ -29,6 +31,16 @@ const ChatRoom = () => {
       isMe: false,
     },
   ]);
+  const [selectedExperts, setSelectedExperts] = useState<number[]>([]);
+
+  const handleExpertSelect = (expertId: number) => {
+    setSelectedExperts(prev => {
+      if (prev.includes(expertId)) {
+        return prev.filter(id => id !== expertId);
+      }
+      return [...prev, expertId];
+    });
+  };
 
   const sendMessage = () => {
     if (message.trim()) {
@@ -52,6 +64,12 @@ const ChatRoom = () => {
       keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
       style={styles.container}
     >
+      <ExpertSelector
+        experts={defaultExperts}
+        selectedExperts={selectedExperts}
+        onSelectExpert={handleExpertSelect}
+      />
+
       <ScrollView
         ref={scrollViewRef}
         style={styles.messagesContainer}
