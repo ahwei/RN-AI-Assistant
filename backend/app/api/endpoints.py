@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 import asyncio
-import tiktoken
+
 
 from ..database import get_db
 from ..models.models import User, Expert, Chat, Message
@@ -66,6 +66,24 @@ def get_messages(chat_id: int, db: Session = Depends(get_db)):
 
 @router.post("/chats/{chat_id}/experts/{expert_id}/respond")
 async def expert_respond(chat_id: int, expert_id: int, db: Session = Depends(get_db)):
+
+    expert = db.query(Expert).filter(Expert.expert_id == expert_id).first()
+    if not expert:
+        raise HTTPException(status_code=404, detail="Expert not found")
+
+    messages = (
+        db.query(Message)
+        .filter(Message.chat_id == chat_id)
+        .order_by(Message.timestamp)
+        .all()
+    )
+    if not messages:
+        raise HTTPException(status_code=404, detail="Chat history not found")
+
+    print(f"Expert: {expert.name}")
+    print(f"Chat history length: {len(messages)}")
+    print(f"Last message: {messages[-1].content}")
+
     async def fake_llm_response():
         # Markdown
         example_responses = [
