@@ -1,30 +1,42 @@
+import { useQueryClient } from '@tanstack/react-query';
 import React, { createContext, useContext, useState } from 'react';
+import { useCreateChatRoom, useGetUserChats } from '../hooks/useChat';
 
 interface ChatContextProps {
-  chatRooms: { id: number; label: string }[];
-  addChatRoom: (label: string) => number;
+  chatRooms: { chat_id: number; user_id: number }[];
+  isLoading: boolean;
+  error: Error | null;
   currentRoomId: number | null;
   setCurrentRoomId: (id: number | null) => void;
+  createNewChatRoom: () => Promise<number>;
 }
 
 const ChatContext = createContext<ChatContextProps | undefined>(undefined);
 
 export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [chatRooms, setChatRooms] = useState<{ id: number; label: string }[]>([
-    { id: 1, label: 'Chat Room 1' },
-    { id: 2, label: 'Chat Room 2' },
-  ]);
   const [currentRoomId, setCurrentRoomId] = useState<number | null>(null);
+  const { data: chatRooms = [], isLoading, error } = useGetUserChats();
+  const queryClient = useQueryClient();
+  const createChatRoom = useCreateChatRoom();
 
-  const addChatRoom = (label: string) => {
-    const newId = chatRooms.length > 0 ? Math.max(...chatRooms.map(room => room.id)) + 1 : 1;
-    const newRoom = { id: newId, label };
-    setChatRooms([...chatRooms, newRoom]);
-    return newId;
+  const createNewChatRoom = async () => {
+    const result = await createChatRoom.mutateAsync(1);
+
+    await queryClient.invalidateQueries({ queryKey: ['userChats'] });
+    return result.chat_id;
   };
 
   return (
-    <ChatContext.Provider value={{ chatRooms, addChatRoom, currentRoomId, setCurrentRoomId }}>
+    <ChatContext.Provider
+      value={{
+        chatRooms,
+        isLoading,
+        error,
+        currentRoomId,
+        setCurrentRoomId,
+        createNewChatRoom,
+      }}
+    >
       {children}
     </ChatContext.Provider>
   );

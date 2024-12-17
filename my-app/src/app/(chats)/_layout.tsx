@@ -29,11 +29,11 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
 
         {chatRooms.map(room => (
           <TouchableOpacity
-            key={room.id}
-            onPress={() => handleChatRoomSelect(room.id)}
+            key={room.chat_id}
+            onPress={() => handleChatRoomSelect(room.chat_id)}
             style={styles.chatRoomButton}
           >
-            <Text style={styles.chatRoomText}>{room.label}</Text>
+            <Text style={styles.chatRoomText}>Chat Room {room.chat_id}</Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -65,9 +65,9 @@ const Layout = () => {
           name="[chatId]"
           options={({ route }) => {
             const chatId = (route.params as { chatId: number })?.chatId;
-            const currentChat = chatRooms.find(room => room.id === Number(chatId));
+            const currentChat = chatRooms.find(room => room.chat_id === Number(chatId));
             return {
-              title: currentChat?.label || 'Chat Room',
+              title: 'Chat Room ' + currentChat?.chat_id,
             };
           }}
         />

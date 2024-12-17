@@ -103,3 +103,9 @@ async def expert_respond(chat_id: int, expert_id: int, db: Session = Depends(get
                 yield chunk.choices[0].delta.content
 
     return StreamingResponse(stream_response(), media_type="text/event-stream")
+
+
+@router.get("/users/{user_id}/chats/", response_model=list)
+def get_user_chats(user_id: int, db: Session = Depends(get_db)):
+    chats = db.query(Chat).filter(Chat.user_id == user_id).all()
+    return [{"chat_id": chat.chat_id, "user_id": chat.user_id} for chat in chats]

@@ -76,3 +76,24 @@ export const useGetMessages = (chatId?: number) => {
     enabled: !!chatId,
   });
 };
+
+export const useGetUserChats = (userId: number = 1) => {
+  return useQuery({
+    queryKey: ['userChats', userId],
+    queryFn: async () => {
+      const response = await axios.get(`${API_BASE_URL}/users/${userId}/chats/`);
+      return response.data;
+    },
+  });
+};
+
+export const useCreateChatRoom = () => {
+  return useMutation({
+    mutationFn: async (userId: number = 1) => {
+      const response = await axios.post(`${API_BASE_URL}/chats/`, {
+        user_id: userId,
+      });
+      return response.data;
+    },
+  });
+};

@@ -25,7 +25,7 @@ interface ChatRoomProps {
 }
 
 const ChatRoom = ({ chatId }: ChatRoomProps) => {
-  const { addChatRoom } = useChatList();
+  const { createNewChatRoom } = useChatList();
   const router = useRouter();
 
   const [message, setMessage] = useState('');
@@ -52,9 +52,15 @@ const ChatRoom = ({ chatId }: ChatRoomProps) => {
           user: msg.sender === 'user' ? 'You' : 'AI',
         })
       );
-      setMessages(formattedMessages);
+
+      const hasChanges = JSON.stringify(formattedMessages) !== JSON.stringify(messages);
+      if (hasChanges) {
+        setMessages(formattedMessages);
+      }
+    } else if (messages.length > 0) {
+      setMessages([]);
     }
-  }, [chatId, messageHistory]);
+  }, [chatId, messageHistory, messages]);
 
   const { mutate: sendMessage } = useSendMessage();
 
@@ -67,10 +73,10 @@ const ChatRoom = ({ chatId }: ChatRoomProps) => {
     });
   };
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (message.trim()) {
       if (!chatId) {
-        const newRoomId = addChatRoom(`Chat ${new Date().toLocaleTimeString()}`);
+        const newRoomId = await createNewChatRoom();
         router.push(`/(chats)/${newRoomId}`);
         return;
       }
