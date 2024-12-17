@@ -1,9 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
-import asyncio
 
-
+from ..core.openai_config import get_chat_completion
 from ..database import get_db
 from ..models.models import User, Expert, Chat, Message
 
@@ -80,27 +79,27 @@ async def expert_respond(chat_id: int, expert_id: int, db: Session = Depends(get
     if not messages:
         raise HTTPException(status_code=404, detail="Chat history not found")
 
-    print(f"Expert: {expert.name}")
-    print(f"Chat history length: {len(messages)}")
-    print(f"Last message: {messages[-1].content}")
+    #  messages
+    system_prompt = f"""You are a professional {expert.name}.
+    Your expertise is in {expert.description}.
+    Please respond to user questions in a professional and friendly manner.
+    Use markdown format for your responses.
+    Ensure your answers are well-structured and informative.
+    Focus on providing accurate, up-to-date information in your area of expertise.
+    """
 
-    async def fake_llm_response():
-        # Markdown
-        example_responses = [
-            "# AI and Machine Learning Expert\n\n",
-            "## Introduction\nAs an AI researcher with extensive experience in machine learning, ",
-            "I specialize in developing and implementing advanced AI solutions. ",
-            "\n\n## Key Areas of Expertise\n- Deep Learning\n- Neural Networks\n- Natural Language Processing\n",
-            "## Recent Developments\nIn recent years, we've seen significant advances in:\n",
-            "1. Transformer architectures\n2. Self-supervised learning\n3. Multi-modal models\n\n",
-            "## Practical Applications\nThese technologies have revolutionized:\n- Computer Vision\n- Language Processing\n- Robotics\n\n",
-            "## Future Directions\nThe field is moving towards:\n",
-            "- More efficient training methods\n- Better interpretability\n- Reduced computational requirements\n\n",
-            "## Conclusion\nThe future of AI is incredibly promising, with new breakthroughs happening regularly.",
-        ]
+    openai_messages = [{"role": "system", "content": system_prompt}]
 
-        for chunk in example_responses:
-            await asyncio.sleep(0.5)  # delay 0.5 s
-            yield chunk
+    # add history message
+    for msg in messages:
+        role = "assistant" if msg.sender == "expert" else "user"
+        openai_messages.append({"role": role, "content": msg.content})
 
-    return StreamingResponse(fake_llm_response(), media_type="text/event-stream")
+    async def stream_response():
+        response = await get_chat_completion(openai_messages)
+
+        async for chunk in response:
+            if chunk.choices[0].delta.content is not None:
+                yield chunk.choices[0].delta.content
+
+    return StreamingResponse(stream_response(), media_type="text/event-stream")
