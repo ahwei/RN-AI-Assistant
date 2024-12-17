@@ -6,9 +6,10 @@ interface ChatInputProps {
   message: string;
   onChangeText: (text: string) => void;
   onSend: () => void;
+  disabled?: boolean;
 }
 
-const ChatInput = ({ message, onChangeText, onSend }: ChatInputProps) => {
+const ChatInput = ({ message, onChangeText, onSend, disabled }: ChatInputProps) => {
   return (
     <View style={styles.inputWrapper}>
       <View style={styles.inputContainer}>
@@ -25,6 +26,7 @@ const ChatInput = ({ message, onChangeText, onSend }: ChatInputProps) => {
           onPress={onSend}
           containerStyle={styles.button}
           buttonStyle={styles.buttonInner}
+          disabled={disabled}
         />
       </View>
     </View>

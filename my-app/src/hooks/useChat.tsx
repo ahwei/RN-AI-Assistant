@@ -90,9 +90,7 @@ export const useGetUserChats = (userId: number = 1) => {
 export const useCreateChatRoom = () => {
   return useMutation({
     mutationFn: async (userId: number = 1) => {
-      const response = await axios.post(`${API_BASE_URL}/chats/`, {
-        user_id: userId,
-      });
+      const response = await axios.post(`${API_BASE_URL}/chats/?user_id=${userId}`);
       return response.data;
     },
   });

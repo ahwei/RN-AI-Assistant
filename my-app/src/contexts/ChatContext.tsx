@@ -1,4 +1,3 @@
-import { useQueryClient } from '@tanstack/react-query';
 import React, { createContext, useContext, useState } from 'react';
 import { useCreateChatRoom, useGetUserChats } from '../hooks/useChat';
 
@@ -15,14 +14,14 @@ const ChatContext = createContext<ChatContextProps | undefined>(undefined);
 
 export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentRoomId, setCurrentRoomId] = useState<number | null>(null);
-  const { data: chatRooms = [], isLoading, error } = useGetUserChats();
-  const queryClient = useQueryClient();
+  const { data: chatRooms = [], isLoading, error, refetch } = useGetUserChats();
+
   const createChatRoom = useCreateChatRoom();
 
   const createNewChatRoom = async () => {
     const result = await createChatRoom.mutateAsync(1);
 
-    await queryClient.invalidateQueries({ queryKey: ['userChats'] });
+    await refetch();
     return result.chat_id;
   };
 

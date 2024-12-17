@@ -25,7 +25,7 @@ interface ChatRoomProps {
 }
 
 const ChatRoom = ({ chatId }: ChatRoomProps) => {
-  const { createNewChatRoom } = useChatList();
+  const { createNewChatRoom, isLoading: isLoadingChatList } = useChatList();
   const router = useRouter();
 
   const [message, setMessage] = useState('');
@@ -77,6 +77,7 @@ const ChatRoom = ({ chatId }: ChatRoomProps) => {
     if (message.trim()) {
       if (!chatId) {
         const newRoomId = await createNewChatRoom();
+        console.log('newRoomId', newRoomId);
         router.push(`/(chats)/${newRoomId}`);
         return;
       }
@@ -148,7 +149,12 @@ const ChatRoom = ({ chatId }: ChatRoomProps) => {
           />
         )}
       </ScrollView>
-      <ChatInput message={message} onChangeText={setMessage} onSend={handleSendMessage} />
+      <ChatInput
+        message={message}
+        onChangeText={setMessage}
+        onSend={handleSendMessage}
+        disabled={isLoading || isLoadingChatList}
+      />
     </KeyboardAvoidingView>
   );
 };
