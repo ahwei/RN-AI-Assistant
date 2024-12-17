@@ -126,7 +126,11 @@ const ChatRoom = ({ chatId }: ChatRoomProps) => {
             )
           )
         ) : (
-          <Text>No messages yet</Text>
+          <MessageBubble
+            title="AI Expert Assistant"
+            text="Welcome to the AI Expert Chatbot! I can help you answer questions, provide suggestions, or have interesting conversations. How can I assist you today?"
+            isMe={false}
+          />
         )}
       </ScrollView>
       <ChatInput message={message} onChangeText={setMessage} onSend={handleSendMessage} />
