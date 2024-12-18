@@ -15,18 +15,34 @@ A full-stack development project featuring a React Native frontend and a Python 
 ### React Native
 
 1. Ensure you have Node.js 18+ installed. You can download it from [Node.js official website](https://nodejs.org/).
-2. Install React Native CLI globally:
+2. Install Expo CLI globally:
    ```sh
-   npm install -g react-native-cli
+   npm install -g expo-cli
    ```
 3. Navigate to the project directory and install dependencies:
    ```sh
-   cd path/to/project
+   cd my-app
    make rn-install
    ```
 4. Copy the example environment file:
    ```sh
    cp my-app/.env.example my-app/.env
+   ```
+5. Start the React Native development server:
+   ```sh
+   make rn-start
+   ```
+6. To run the app on an Android emulator:
+   ```sh
+   make rn-android
+   ```
+7. To run the app on an iOS simulator:
+   ```sh
+   make rn-ios
+   ```
+8. To clean the React Native project:
+   ```sh
+   make rn-clean
    ```
 
 ### Python (Docker)
@@ -34,7 +50,7 @@ A full-stack development project featuring a React Native frontend and a Python 
 1. Ensure you have Docker and Docker Compose installed. You can download them from [Docker official website](https://www.docker.com/).
 2. Navigate to the project directory and build the Docker images:
    ```sh
-   cd path/to/project
+   cd backend
    make build
    ```
 3. Copy the example environment file:
