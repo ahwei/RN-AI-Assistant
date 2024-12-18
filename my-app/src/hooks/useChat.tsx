@@ -57,6 +57,16 @@ export const useGetMessages = (chatId?: number) => {
   });
 };
 
+export const useGetExperts = () => {
+  return useQuery({
+    queryKey: ['experts'],
+    queryFn: async () => {
+      const response = await axios.get(`${API_BASE_URL}/experts/`);
+      return response.data;
+    },
+  });
+};
+
 export const useGetUserChats = (userId: number = 1) => {
   return useQuery({
     queryKey: ['userChats', userId],

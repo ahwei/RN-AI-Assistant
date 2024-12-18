@@ -3,9 +3,8 @@ import ChatInput from '@/components/chat/ChatInput';
 import ExpertSelector from '@/components/chat/ExpertSelector';
 import MessageBubble from '@/components/chat/MessageBubble';
 import { useChatList } from '@/contexts/ChatContext';
-import { useAddMessage, useGetMessages } from '@/hooks/useChat'; // 移除 useSendMessage
+import { useAddMessage, useGetExperts, useGetMessages } from '@/hooks/useChat'; // 移除 useSendMessage
 import { ChatIdEnum } from '@/types/chat';
-import { defaultExperts } from '@/types/expert';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text } from 'react-native';
@@ -30,6 +29,8 @@ const ChatRoom = () => {
   const [selectedExperts, setSelectedExperts] = useState<number[]>([]);
 
   const { data: messageHistory = [], isLoading } = useGetMessages(Number(chatId));
+  const { data: experts } = useGetExperts();
+
   const { mutateAsync: addMessageMutate, isLoading: isAddingMessage } = useAddMessage();
   const [localMessages, setLocalMessages] = useState<Message[]>([]);
 
@@ -112,7 +113,7 @@ const ChatRoom = () => {
       style={styles.container}
     >
       <ExpertSelector
-        experts={defaultExperts}
+        experts={experts || []}
         selectedExperts={selectedExperts}
         onSelectExpert={handleExpertSelect}
       />

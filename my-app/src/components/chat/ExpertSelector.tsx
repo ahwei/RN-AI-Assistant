@@ -24,18 +24,18 @@ const ExpertSelector: React.FC<ExpertSelectorProps> = ({
       >
         {experts.map(expert => (
           <View
-            key={expert.id}
+            key={expert.expert_id}
             style={[
               styles.expertItem,
-              selectedExperts.includes(expert.id) && styles.selectedExpert,
+              selectedExperts.includes(expert.expert_id) && styles.selectedExpert,
             ]}
           >
             <TouchableOpacity
-              onPress={() => onSelectExpert(expert.id)}
+              onPress={() => onSelectExpert(expert.expert_id)}
               onLongPress={() => Alert.alert('Expert', expert.name)}
               style={styles.touchable}
             >
-              <Avatar size={50} rounded source={{ uri: expert.avatar }} />
+              <Avatar size={50} rounded source={{ uri: 'https://i.pravatar.cc/100' }} />
             </TouchableOpacity>
           </View>
         ))}
