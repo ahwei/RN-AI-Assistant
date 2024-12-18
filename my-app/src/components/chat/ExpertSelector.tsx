@@ -14,6 +14,7 @@ const ExpertSelector: React.FC<ExpertSelectorProps> = ({
   selectedExperts,
   onSelectExpert,
 }) => {
+  console.log('experts', experts);
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Select Expert</Text>
@@ -40,7 +41,7 @@ const ExpertSelector: React.FC<ExpertSelectorProps> = ({
               }
               style={styles.touchable}
             >
-              <Avatar size={50} rounded source={{ uri: 'https://i.pravatar.cc/100' }} />
+              <Avatar size={50} rounded source={{ uri: expert.avatar_url }} />
             </TouchableOpacity>
           </View>
         ))}
