@@ -97,10 +97,19 @@ async def expert_respond(chat_id: int, expert_id: int, db: Session = Depends(get
 
     async def stream_response():
         response = await get_chat_completion(openai_messages)
+        full_content = ""
 
         async for chunk in response:
             if chunk.choices[0].delta.content is not None:
-                yield chunk.choices[0].delta.content
+                content_piece = chunk.choices[0].delta.content
+                full_content += content_piece
+                yield content_piece
+
+        new_message = Message(
+            chat_id=chat_id, expert_id=expert_id, sender="expert", content=full_content
+        )
+        db.add(new_message)
+        db.commit()
 
     return StreamingResponse(stream_response(), media_type="text/event-stream")
 
