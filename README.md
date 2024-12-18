@@ -23,6 +23,10 @@ A full-stack development project featuring a React Native frontend and a Python 
    cd path/to/project
    make rn-install
    ```
+4. Copy the example environment file:
+   ```sh
+   cp my-app/.env.example my-app/.env
+   ```
 
 ### Python (Docker)
 
@@ -32,11 +36,15 @@ A full-stack development project featuring a React Native frontend and a Python 
    cd path/to/project
    make build
    ```
-3. Start the backend services:
+3. Copy the example environment file:
+   ```sh
+   cp backend/.env.example backend/.env
+   ```
+4. Start the backend services:
    ```sh
    make up
    ```
-4. To stop the backend services:
+5. To stop the backend services:
    ```sh
    make down
    ```

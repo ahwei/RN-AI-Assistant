@@ -70,6 +70,7 @@ def get_messages(chat_id: int, db: Session = Depends(get_db)):
                 {
                     "expert_id": msg.expert.expert_id,
                     "name": msg.expert.name,
+                    "avatar_url": msg.expert.avatar_url,
                 }
                 if msg.expert
                 else None
