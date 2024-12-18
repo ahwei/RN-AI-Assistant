@@ -58,6 +58,14 @@ def get_messages(chat_id: int, db: Session = Depends(get_db)):
             "sender": msg.sender,
             "content": msg.content,
             "timestamp": msg.timestamp,
+            "expert": (
+                {
+                    "expert_id": msg.expert.expert_id,
+                    "name": msg.expert.name,
+                }
+                if msg.expert
+                else None
+            ),
         }
         for msg in messages
     ]
