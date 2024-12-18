@@ -21,7 +21,14 @@ def create_user(name: str, db: Session = Depends(get_db)):
 @router.get("/experts/", response_model=list)
 def get_experts(db: Session = Depends(get_db)):
     experts = db.query(Expert).all()
-    return [{"expert_id": expert.expert_id, "name": expert.name} for expert in experts]
+    return [
+        {
+            "expert_id": expert.expert_id,
+            "name": expert.name,
+            "description": expert.description,
+        }
+        for expert in experts
+    ]
 
 
 @router.post("/chats/", response_model=dict)
@@ -58,6 +65,14 @@ def get_messages(chat_id: int, db: Session = Depends(get_db)):
             "sender": msg.sender,
             "content": msg.content,
             "timestamp": msg.timestamp,
+            "expert": (
+                {
+                    "expert_id": msg.expert.expert_id,
+                    "name": msg.expert.name,
+                }
+                if msg.expert
+                else None
+            ),
         }
         for msg in messages
     ]
@@ -97,9 +112,30 @@ async def expert_respond(chat_id: int, expert_id: int, db: Session = Depends(get
 
     async def stream_response():
         response = await get_chat_completion(openai_messages)
+        full_content = ""
 
         async for chunk in response:
             if chunk.choices[0].delta.content is not None:
-                yield chunk.choices[0].delta.content
+                content_piece = chunk.choices[0].delta.content
+                full_content += content_piece
+                yield content_piece
+
+        new_message = Message(
+            chat_id=chat_id, expert_id=expert_id, sender="expert", content=full_content
+        )
+        db.add(new_message)
+        db.commit()
 
     return StreamingResponse(stream_response(), media_type="text/event-stream")
+
+
+@router.get("/users/{user_id}/chats/", response_model=list)
+def get_user_chats(user_id: int, db: Session = Depends(get_db)):
+    chats = (
+        db.query(Chat)
+        .filter(Chat.user_id == user_id)
+        .order_by(Chat.chat_id.desc())
+        .limit(10)
+        .all()
+    )
+    return [{"chat_id": chat.chat_id, "user_id": chat.user_id} for chat in chats]
