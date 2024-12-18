@@ -1,7 +1,7 @@
 # Chocolate-Chip-AI-LLM-Coding-Task
 
 A full-stack development project featuring a React Native frontend and a Python backend.
-![image1](images/home.png)
+<img src="images/home.png" alt="image1" width="300"/>
 
 ## Development Environment Requirements
 
@@ -52,7 +52,7 @@ A full-stack development project featuring a React Native frontend and a Python 
 
 ## Quick Start
 
-![image2](images/ask_question.png)
+<img src="images/ask_question.png" alt="image2" width="300"/>
 
 ### Frontend (React Native)
 
