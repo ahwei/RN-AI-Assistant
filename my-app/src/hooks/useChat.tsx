@@ -1,3 +1,4 @@
+import { Expert } from '@/types/expert';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
@@ -58,10 +59,10 @@ export const useGetMessages = (chatId?: number) => {
 };
 
 export const useGetExperts = () => {
-  return useQuery({
+  return useQuery<Expert[]>({
     queryKey: ['experts'],
     queryFn: async () => {
-      const response = await axios.get(`${API_BASE_URL}/experts/`);
+      const response = await axios.get<Expert[]>(`${API_BASE_URL}/experts/`);
       return response.data;
     },
   });

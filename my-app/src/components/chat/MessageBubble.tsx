@@ -1,22 +1,25 @@
+import { IMessage } from '@/types/messages';
 import { Avatar } from '@rneui/themed';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Markdown from 'react-native-markdown-display';
 
 interface MessageBubbleProps {
-  title?: string;
-  text: string;
+  message: IMessage;
   isMe: boolean;
 }
 
-const MessageBubble = ({ title, text, isMe }: MessageBubbleProps) => {
+const MessageBubble = ({ message, isMe }: MessageBubbleProps) => {
+  const { content, expert } = message;
+  const title = expert ? expert.name : 'AI Response:';
+
   return (
     <View style={[styles.messageContainer, isMe ? styles.myMessage : styles.otherMessage]}>
       {!isMe && <Avatar rounded size="small" source={require('@/assets/images/ai-icon.png')} />}
       <View style={[styles.messageBubble, isMe ? styles.myBubble : styles.otherBubble]}>
-        {!isMe && <Text style={styles.messageUser}>{title || 'AI Response:'}</Text>}
+        {!isMe && <Text style={styles.messageUser}>{title}</Text>}
         {isMe ? (
-          <Text style={styles.messageText}>{text}</Text>
+          <Text style={styles.messageText}>{content}</Text>
         ) : (
           <Markdown
             style={{
@@ -28,7 +31,7 @@ const MessageBubble = ({ title, text, isMe }: MessageBubbleProps) => {
               code_block: styles.markdownCode,
             }}
           >
-            {text}
+            {content}
           </Markdown>
         )}
       </View>
