@@ -5,9 +5,19 @@ import MessageBubble from '@/components/chat/MessageBubble';
 import { useChatList } from '@/contexts/ChatContext';
 import { useAddMessage, useGetExperts, useGetMessages } from '@/hooks/useChat'; // 移除 useSendMessage
 import { ChatIdEnum } from '@/types/chat';
+import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+
 interface Message {
   id: number;
   text: string;
@@ -27,6 +37,7 @@ const ChatRoom = () => {
   const [message, setMessage] = useState('');
   const scrollViewRef = useRef<ScrollView | null>(null);
   const [selectedExperts, setSelectedExperts] = useState<number[]>([]);
+  const [showScrollButton, setShowScrollButton] = useState(false);
 
   const { data: messageHistory = [], isLoading } = useGetMessages(Number(chatId));
   const { data: experts } = useGetExperts();
@@ -106,6 +117,25 @@ const ChatRoom = () => {
     }
   };
 
+  const handleScroll = (event: {
+    nativeEvent: {
+      contentOffset: { y: number };
+      contentSize: { height: number };
+      layoutMeasurement: { height: number };
+    };
+  }) => {
+    const currentOffset = event.nativeEvent.contentOffset.y;
+    const contentHeight = event.nativeEvent.contentSize.height;
+    const scrollViewHeight = event.nativeEvent.layoutMeasurement.height;
+
+    const distanceFromBottom = contentHeight - currentOffset - scrollViewHeight;
+    setShowScrollButton(distanceFromBottom > 100);
+  };
+
+  const scrollToBottom = () => {
+    scrollViewRef.current?.scrollToEnd({ animated: true });
+  };
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -117,30 +147,39 @@ const ChatRoom = () => {
         selectedExperts={selectedExperts}
         onSelectExpert={handleExpertSelect}
       />
-      <ScrollView
-        ref={scrollViewRef}
-        style={styles.messagesContainer}
-        contentContainerStyle={styles.scrollContent}
-        onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
-      >
-        {isLoading ? (
-          <Text>Loading messages...</Text>
-        ) : allMessages.length > 0 ? (
-          allMessages.map(msg =>
-            msg.type === 'streaming' && msg.expertId && chatId ? (
-              <AIStreamingBubble key={msg.id} chatId={Number(chatId)} expertId={msg.expertId} />
-            ) : (
-              <MessageBubble key={msg.id} {...msg} />
+      <View style={styles.scrollContainer}>
+        <ScrollView
+          ref={scrollViewRef}
+          style={styles.messagesContainer}
+          contentContainerStyle={styles.scrollContent}
+          onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
+        >
+          {isLoading ? (
+            <Text>Loading messages...</Text>
+          ) : allMessages.length > 0 ? (
+            allMessages.map(msg =>
+              msg.type === 'streaming' && msg.expertId && chatId ? (
+                <AIStreamingBubble key={msg.id} chatId={Number(chatId)} expertId={msg.expertId} />
+              ) : (
+                <MessageBubble key={msg.id} {...msg} />
+              )
             )
-          )
-        ) : (
-          <MessageBubble
-            title="AI Expert Assistant"
-            text="Welcome to the AI Expert Chatbot! I can help you answer questions, provide suggestions, or have interesting conversations. How can I assist you today?"
-            isMe={false}
-          />
+          ) : (
+            <MessageBubble
+              title="AI Expert Assistant"
+              text="Welcome to the AI Expert Chatbot! I can help you answer questions, provide suggestions, or have interesting conversations. How can I assist you today?"
+              isMe={false}
+            />
+          )}
+        </ScrollView>
+        {showScrollButton && (
+          <TouchableOpacity style={styles.scrollButton} onPress={scrollToBottom}>
+            <Ionicons name="chevron-down-circle" size={40} color="#007AFF" />
+          </TouchableOpacity>
         )}
-      </ScrollView>
+      </View>
       <ChatInput
         message={message}
         onChangeText={setMessage}
@@ -158,6 +197,25 @@ const styles = StyleSheet.create({
   },
   messagesContainer: {
     flex: 1,
+  },
+  scrollButton: {
+    alignSelf: 'center',
+    backgroundColor: 'white',
+    borderRadius: 20,
+    bottom: 15,
+    elevation: 5,
+    position: 'absolute',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  scrollContainer: {
+    flex: 1,
+    position: 'relative',
   },
   scrollContent: {
     padding: 10,
