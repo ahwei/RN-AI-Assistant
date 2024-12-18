@@ -32,7 +32,12 @@ const ExpertSelector: React.FC<ExpertSelectorProps> = ({
           >
             <TouchableOpacity
               onPress={() => onSelectExpert(expert.expert_id)}
-              onLongPress={() => Alert.alert('Expert', expert.name)}
+              onLongPress={() =>
+                Alert.alert(
+                  expert.name,
+                  `About ${expert.name}: ${expert.description ?? 'No description'}`
+                )
+              }
               style={styles.touchable}
             >
               <Avatar size={50} rounded source={{ uri: 'https://i.pravatar.cc/100' }} />

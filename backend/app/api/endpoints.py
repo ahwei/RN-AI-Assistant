@@ -21,7 +21,14 @@ def create_user(name: str, db: Session = Depends(get_db)):
 @router.get("/experts/", response_model=list)
 def get_experts(db: Session = Depends(get_db)):
     experts = db.query(Expert).all()
-    return [{"expert_id": expert.expert_id, "name": expert.name} for expert in experts]
+    return [
+        {
+            "expert_id": expert.expert_id,
+            "name": expert.name,
+            "description": expert.description,
+        }
+        for expert in experts
+    ]
 
 
 @router.post("/chats/", response_model=dict)
