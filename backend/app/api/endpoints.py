@@ -26,6 +26,7 @@ def get_experts(db: Session = Depends(get_db)):
             "expert_id": expert.expert_id,
             "name": expert.name,
             "description": expert.description,
+            "avatar_url": expert.avatar_url,
         }
         for expert in experts
     ]

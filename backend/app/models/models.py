@@ -4,7 +4,7 @@ from ..database import Base
 
 
 class User(Base):
-    __tablename__ = "user_"
+    __tablename__ = "users"
 
     user_id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String)
@@ -14,20 +14,21 @@ class User(Base):
 
 
 class Expert(Base):
-    __tablename__ = "expert"
+    __tablename__ = "experts"
 
     expert_id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String)
     description = Column(String)
+    avatar_url = Column(String, nullable=True)
 
     messages = relationship("Message", back_populates="expert")
 
 
 class Chat(Base):
-    __tablename__ = "chat"
+    __tablename__ = "chats"
 
     chat_id = Column(Integer, primary_key=True, autoincrement=True)
-    user_id = Column(Integer, ForeignKey("user_.user_id"))
+    user_id = Column(Integer, ForeignKey("users.user_id"))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     user = relationship("User", back_populates="chats")
@@ -35,12 +36,12 @@ class Chat(Base):
 
 
 class Message(Base):
-    __tablename__ = "message"
+    __tablename__ = "messages"
 
     message_id = Column(Integer, primary_key=True, autoincrement=True)
-    chat_id = Column(Integer, ForeignKey("chat.chat_id"))
-    user_id = Column(Integer, ForeignKey("user_.user_id"), nullable=True)
-    expert_id = Column(Integer, ForeignKey("expert.expert_id"), nullable=True)
+    chat_id = Column(Integer, ForeignKey("chats.chat_id"))
+    user_id = Column(Integer, ForeignKey("users.user_id"), nullable=True)
+    expert_id = Column(Integer, ForeignKey("experts.expert_id"), nullable=True)
     sender = Column(String)
     content = Column(Text)
     timestamp = Column(DateTime(timezone=True), server_default=func.now())
