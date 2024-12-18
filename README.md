@@ -21,7 +21,6 @@ A full-stack development project featuring a React Native frontend and a Python 
    ```
 3. Navigate to the project directory and install dependencies:
    ```sh
-   cd my-app
    make rn-install
    ```
 4. Copy the example environment file:
@@ -50,7 +49,6 @@ A full-stack development project featuring a React Native frontend and a Python 
 1. Ensure you have Docker and Docker Compose installed. You can download them from [Docker official website](https://www.docker.com/).
 2. Navigate to the project directory and build the Docker images:
    ```sh
-   cd backend
    make build
    ```
 3. Copy the example environment file:
