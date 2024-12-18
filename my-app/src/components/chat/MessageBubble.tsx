@@ -15,7 +15,17 @@ const MessageBubble = ({ message, isMe }: MessageBubbleProps) => {
 
   return (
     <View style={[styles.messageContainer, isMe ? styles.myMessage : styles.otherMessage]}>
-      {!isMe && <Avatar rounded size="small" source={require('@/assets/images/ai-icon.png')} />}
+      {!isMe && (
+        <Avatar
+          rounded
+          size="small"
+          source={
+            message?.expert?.avatar_url
+              ? { uri: message.expert.avatar_url }
+              : require('@/assets/images/ai-icon.png')
+          }
+        />
+      )}
       <View style={[styles.messageBubble, isMe ? styles.myBubble : styles.otherBubble]}>
         {!isMe && <Text style={styles.messageUser}>{title}</Text>}
         {isMe ? (
