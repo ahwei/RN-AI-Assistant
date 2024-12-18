@@ -97,12 +97,14 @@ async def expert_respond(chat_id: int, expert_id: int, db: Session = Depends(get
         raise HTTPException(status_code=404, detail="Chat history not found")
 
     #  messages
-    system_prompt = f"""You are a professional {expert.name}.
-    Your expertise is in {expert.description}.
+    system_prompt = f"""You are {expert.name}, a professional in {expert.description}.
     Please respond to user questions in a professional and friendly manner.
     Use markdown format for your responses.
     Ensure your answers are well-structured and informative.
     Focus on providing accurate, up-to-date information in your area of expertise.
+    Only respond to questions directed to you or relevant to your expertise.
+    If a question is directed to a specific person, ensure it matches your identity before responding.
+    If the question is not relevant to your expertise or directed to someone else, politely indicate that you cannot answer it.
     """
 
     openai_messages = [{"role": "system", "content": system_prompt}]
