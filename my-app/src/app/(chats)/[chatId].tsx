@@ -35,17 +35,14 @@ const ChatRoom = () => {
 
   const { mutateAsync: addMessageMutate, isLoading: isAddingMessage } = useAddMessage();
   const [localMessages, setLocalMessages] = useState<IMessage[]>([]);
-
-  useEffect(() => {
-    setLocalMessages([]);
-  }, [chatId]);
+  const [pendingStreamMessages, setPendingStreamMessages] = useState<IMessage[]>([]);
 
   const formattedHistoryMessages: IMessage[] = messageHistory.map((msg: IMessage) => ({
     ...msg,
     timestamp: new Date(msg.timestamp).toLocaleTimeString(),
   }));
 
-  const allMessages = [...formattedHistoryMessages, ...localMessages];
+  const allMessages = [...formattedHistoryMessages, ...localMessages, ...pendingStreamMessages];
 
   const handleExpertSelect = (expertId: number) => {
     setSelectedExperts(prev => {
@@ -57,14 +54,13 @@ const ChatRoom = () => {
   };
 
   const handleSendMessage = async () => {
+    if (selectedExperts.length === 0) {
+      alert('Please select an expert to chat with');
+      return;
+    }
+
     if (message.trim()) {
       setMessage('');
-      if (chatId === ChatIdEnum.NEW_CHAT) {
-        const newChatId = await createNewChatRoom();
-        await addMessageMutate({ content: message, chartId: newChatId });
-        router.setParams({ chatId: newChatId });
-        return;
-      }
 
       const newMessage: IMessage = {
         message_id: Date.now(),
@@ -73,24 +69,42 @@ const ChatRoom = () => {
         sender: Sender.USER,
       };
 
-      setLocalMessages(prev => [...prev, newMessage]);
+      if (chatId === ChatIdEnum.NEW_CHAT) {
+        const newChatId = await createNewChatRoom();
+        await addMessageMutate({
+          content: message,
+          chartId: Number(newChatId),
+        });
 
-      await addMessageMutate({
-        content: message,
-        chartId: Number(chatId),
-      });
-
-      if (selectedExperts.length > 0) {
-        selectedExperts.forEach(expertId => {
-          const aiMessage: IMessage = {
+        if (selectedExperts.length > 0) {
+          const streamMessages = selectedExperts.map(expertId => ({
             message_id: Date.now() + expertId,
             content: '',
             timestamp: new Date().toISOString(),
             sender: Sender.STREAM,
             expert: experts?.find(e => e.expert_id === expertId),
-          };
-          setLocalMessages(prev => [...prev, aiMessage]);
+          }));
+          setPendingStreamMessages(prev => [...prev, ...streamMessages]);
+        }
+
+        router.setParams({ chatId: newChatId });
+      } else {
+        setLocalMessages(prev => [...prev, newMessage]);
+        await addMessageMutate({
+          content: message,
+          chartId: Number(chatId),
         });
+
+        if (selectedExperts.length > 0) {
+          const aiMessages = selectedExperts.map(expertId => ({
+            message_id: Date.now() + expertId,
+            content: '',
+            timestamp: new Date().toISOString(),
+            sender: Sender.STREAM,
+            expert: experts?.find(e => e.expert_id === expertId),
+          }));
+          setLocalMessages(prev => [...prev, ...aiMessages]);
+        }
       }
     }
   };
@@ -113,6 +127,15 @@ const ChatRoom = () => {
   const scrollToBottom = () => {
     scrollViewRef.current?.scrollToEnd({ animated: true });
   };
+
+  useEffect(() => {
+    setLocalMessages([]);
+
+    if (chatId !== ChatIdEnum.NEW_CHAT && pendingStreamMessages.length > 0) {
+      setLocalMessages(prev => [...prev, ...pendingStreamMessages]);
+      setPendingStreamMessages([]);
+    }
+  }, [chatId]);
 
   return (
     <KeyboardAvoidingView
