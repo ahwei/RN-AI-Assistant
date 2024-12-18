@@ -42,7 +42,7 @@ const ChatRoom = () => {
     timestamp: new Date(msg.timestamp).toLocaleTimeString(),
   }));
 
-  const allMessages = [...formattedHistoryMessages, ...localMessages, ...pendingStreamMessages];
+  const allMessages = [...formattedHistoryMessages, ...localMessages];
 
   const handleExpertSelect = (expertId: number) => {
     setSelectedExperts(prev => {
