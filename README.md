@@ -1,4 +1,4 @@
-# Chocolate-Chip-AI-LLM-Coding-Task
+# RN AI Assistant
 
 A full-stack development project featuring a React Native frontend and a Python backend.
 <img src="images/home.png" alt="image1" width="300"/>
