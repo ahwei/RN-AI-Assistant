@@ -53,6 +53,7 @@ The platform aims to democratize access to expert knowledge by combining the pow
 - Develop analytics features to track and improve the quality of expert responses and consensus generation.
 
 This product represents a step forward in how we engage with AI-driven knowledge systems, making expert insights accessible anytime, anywhere.
+
 <img src="images/home.png" alt="image1" width="300"/>
 
 ## Development Environment Requirements
